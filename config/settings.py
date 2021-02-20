@@ -41,12 +41,14 @@ INSTALLED_APPS = [
 
     #3rd Packages
     'crispy_forms',
+    # 'multiselectfield',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
 
     #Local
     'users',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -128,8 +130,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-
 AUTH_USER_MODEL = 'users.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
@@ -140,8 +140,12 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-STATIC_URL = 'static/'
-STATICFILES_DIR = [BASE_DIR.joinpath('static')]
+STATIC_URL = '/static/'
+STATICFILES_DIR = [BASE_DIR.joinpath('static'),]
+STATIC_ROOT = BASE_DIR.joinpath('staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR.joinpath('media')
 
 SITE_ID = 1
 
@@ -149,4 +153,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
 ACCOUNT_EMAIL_REQUIRED = True
 
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+

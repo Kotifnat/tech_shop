@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin
 
 class CustomUserAdmin(admin.ModelAdmin):
     readonly_fields = ('date_joined',)
+    list_display = ('email', 'username', 'date_joined', 'last_login',)
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
