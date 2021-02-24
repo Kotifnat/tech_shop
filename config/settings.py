@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,7 +41,6 @@ INSTALLED_APPS = [
 
     #3rd Packages
     'crispy_forms',
-    # 'multiselectfield',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -141,7 +140,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 STATIC_URL = '/static/'
-STATICFILES_DIR = [BASE_DIR.joinpath('static'),]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 STATIC_ROOT = BASE_DIR.joinpath('staticfiles')
 
 MEDIA_URL = '/media/'
@@ -154,6 +155,8 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+LOGIN_REDIRECT_URL = 'products:product_list'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 

@@ -1,9 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">Navbar</a>
+  <a class="navbar-brand" href="/">Tech_shop</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
@@ -31,5 +30,115 @@
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
+      {% if user.is_authenticated %}
+      <img src="{{user.avatar.url}}" class="ml-2 mr-2 rounded-circle" width="50x" height="50px">
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="ProfileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{user.username}}
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="ProfileDropdown">
+          <li><a class="dropdown-item" href="{% url 'users:profile' user.id %}">Профиль</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_logout' %}" data-toggle="modal" data-target="#LogoutModal">Выйти</a></li>
+        </ul>
+      </div>
+    <div class="modal fade" id="LogoutModal" tabindex="-1" aria-labelledby="LogoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="LogoutModalLabel">Выход</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+<p>Вы уверены, что хотите выйти?</p>
+
+<form method="post" action="/accounts/logout/">
+    {% csrf_token %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-danger">Выйти</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+      {% else %}
+         <button type="button" class=" ml-2 btn btn-primary" data-toggle="modal" data-target="#loginModal">
+          Войти
+        </button>
+      <!-- Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="LoginModalLabel">Вход на сайт</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+             {% load i18n %}
+{% load account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% get_providers as socialaccount_providers %}
+
+{% if socialaccount_providers %}
+<p>{% blocktrans with site.name as site_name %}Please sign in with one
+of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
+
+<div class="socialaccount_ballot">
+
+  <ul class="socialaccount_providers">
+    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+  </ul>
+
+  <div class="login-or">{% trans 'or' %}</div>
+
+</div>
+
+{% include "socialaccount/snippets/login_extra.html" %}
+
+{% else %}
+<p>{% blocktrans %}If you have not created an account yet, then please
+<a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+{% endif %}
+
+      <form class="login" method="POST" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        <div id="div_id_login" class="form-group">
+          <label for="id_login" class=" requiredField">Войти<span class="asteriskField">*</span></label>
+          <div class="">
+          <input type="text" name="login" placeholder="Имя пользователя или e-mail" autocomplete="email" class="textinput textInput form-control form-control" required="" id="id_login">
+        </div>
+        </div>
+        <div id="div_id_password" class="form-group">
+          <label for="id_password" class=" requiredField">Пароль<span class="asteriskField">*</span> </label>
+          <div class="">
+            <input type="password" name="password" placeholder="Пароль" autocomplete="current-password" class="textinput textInput form-control form-control" required="" id="id_password">
+        </div>
+        </div>
+        <div class="form-group">
+          <div id="div_id_remember" class="form-check">
+            <input type="checkbox" name="remember" class="checkboxinput form-check-input form-check-input" id="id_remember">
+            <label for="id_remember" class="form-check-label">Запомнить меня</label>
+          </div>
+        </div>
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+        <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Close" %}</button>
+                <button class="primaryAction btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+              </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      {% endif %}
   </div>
 </nav>
