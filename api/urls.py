@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from rest_framework.routers import SimpleRouter
 from .api_views import (
-    CategoryListCreateAPIView,
+    CategoryListAPIView,
     SmartphoneViewSet,
     NotebookViewSet,
 )
@@ -13,5 +13,5 @@ router.register('notebooks', NotebookViewSet, basename='notebooks')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('categories/', CategoryListCreateAPIView.as_view(), name='categories'),
+    path('categories/', CategoryListAPIView.as_view(), name='categories'),
 ]

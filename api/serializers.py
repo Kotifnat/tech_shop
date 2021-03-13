@@ -1,23 +1,26 @@
 from rest_framework import serializers
 
-from products.models import Category, Smartphone, Notebook
+from products.models import Category, Smartphone, Notebook, Product
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     name = serializers.CharField(required=True)
     slug = serializers.CharField()
 
     class Meta:
         model = Category
-        fields =[
-            'id','name','slug'
+        fields = [
+            'id', 'name', 'slug'
         ]
 
 
-class BaseProductSerializer:
+class CategoryInProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name']
 
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects)
+
+class BaseProductSerializer:
     title = serializers.CharField(required=True)
     slug = serializers.SlugField(required=True)
     image = serializers.ImageField(required=True)
@@ -26,6 +29,7 @@ class BaseProductSerializer:
 
 
 class SmartphoneSerializer(BaseProductSerializer, serializers.ModelSerializer):
+    category = serializers.SerializerMethodField()
     diagonal = serializers.CharField(required=True)
     display_type = serializers.CharField(required=True)
     resolution = serializers.CharField(required=True)
@@ -40,8 +44,12 @@ class SmartphoneSerializer(BaseProductSerializer, serializers.ModelSerializer):
         model = Smartphone
         fields = '__all__'
 
+    def get_category(self, obj):
+        return f"{obj.category.name}"
+
 
 class NotebookSerializer(BaseProductSerializer, serializers.ModelSerializer):
+    category = serializers.SerializerMethodField()
     diagonal = serializers.CharField(required=False)
     display_type = serializers.CharField(required=False)
     processor_freq = serializers.CharField(required=False)
@@ -52,3 +60,6 @@ class NotebookSerializer(BaseProductSerializer, serializers.ModelSerializer):
     class Meta:
         model = Notebook
         fields = '__all__'
+
+    def get_category(self, obj):
+        return f"{obj.category.name}"

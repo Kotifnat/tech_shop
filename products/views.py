@@ -30,7 +30,7 @@ class BaseView(CartMixin, View):
             'products': products,
             'cart': self.cart
         }
-        return render(request, 'base.html', context)
+        return render(request, 'index.html', context)
 
 
 class ProductDetailView(CartMixin, CategoryDetailMixin, DetailView):

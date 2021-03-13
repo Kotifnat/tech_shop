@@ -11,12 +11,15 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils import timezone
 
 from io import BytesIO
+
 # Create your models here.
 
 User = get_user_model()
 
+
 def get_models_for_count(*models_name):
     return [models.Count(model_name) for model_name in models_name]
+
 
 def get_product_url(obj, viewname):
     ct_model = obj.__class__._meta.model_name
@@ -50,7 +53,8 @@ class LatestProductsManager:
             ct_model = ContentType.objects.filter(model=with_respect_to)
             if ct_model.exists():
                 if with_respect_to in args:
-                    return sorted(products, key=lambda x: x.__class__._meta.model_name.startswith(with_respect_to), reverse=True)
+                    return sorted(products, key=lambda x: x.__class__._meta.model_name.startswith(with_respect_to),
+                                  reverse=True)
         return products
 
 
@@ -59,39 +63,38 @@ class LatestProducts:
 
 
 class CategoryManager(models.Manager):
-
     CATEGORY_NAME_COUNT_NAME = {
         'Ноутбуки': 'notebook__count',
         'Смартфоны': 'smartphone__count',
     }
-    
+
     def get_queryset(self):
         return super().get_queryset()
-    
+
     def get_categories_for_left_sidebar(self):
         models = get_models_for_count('notebook', 'smartphone')
         qs = list(self.get_queryset().annotate(*models))
         data = [
-            dict(name=c.name, url=c.get_absolute_url(), count=getattr(c, self.CATEGORY_NAME_COUNT_NAME[c.name])) for c in qs
+            dict(name=c.name, url=c.get_absolute_url(), count=getattr(c, self.CATEGORY_NAME_COUNT_NAME[c.name])) for c
+            in qs
         ]
         print([type(i.name) for i in qs])
         return data
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=255,verbose_name="Имя категории")
+    name = models.CharField(max_length=255, verbose_name="Имя категории")
     slug = models.SlugField(unique=True)
     objects = CategoryManager()
 
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse('category_detail', kwargs={'slug': self.slug})
 
 
 class Product(models.Model):
-
     MIN_RESOLUTION = (800, 800)
 
     class Meta:
@@ -151,7 +154,8 @@ class Smartphone(Product):
     accum_volume = models.CharField(max_length=255, verbose_name="Объем батареи")
     ram = models.CharField(max_length=255, verbose_name="Оперативная память")
     sd = models.BooleanField(default=True, verbose_name="Наличие SD карты")
-    sd_volume = models.CharField(max_length=255, null=True, blank=True, verbose_name="Максимальный объем встраиваемой памяти")
+    sd_volume = models.CharField(max_length=255, null=True, blank=True,
+                                 verbose_name="Максимальный объем встраиваемой памяти")
     main_cam_mp = models.CharField(max_length=255, verbose_name="Главная камера")
     frontal_cam_mp = models.CharField(max_length=255, verbose_name="Фронтальная камера")
 
@@ -175,6 +179,7 @@ class CartProduct(models.Model):
         self.total_price = self.qty * self.content_object.price
         super().save(*args, **kwargs)
 
+
 class Cart(models.Model):
     owner = models.ForeignKey('Customer', null=True, verbose_name="Владелец", on_delete=models.CASCADE)
     products = models.ManyToManyField(CartProduct, blank=True, related_name="related_cart")
@@ -185,7 +190,7 @@ class Cart(models.Model):
 
     def __str__(self):
         return f'ID {self.id}, {self.owner.user.email}'
-    
+
     def save(self, *args, **kwargs):
         try:
             cart_data = self.products.aggregate(models.Sum('total_price'), models.Count('id'))
@@ -210,7 +215,6 @@ class Customer(models.Model):
 
 
 class Order(models.Model):
-
     STATUS_NEW = 'new'
     STATUS_IN_PROGRESS = 'in_preogress'
     STATUS_READY = 'is_ready'
@@ -231,26 +235,26 @@ class Order(models.Model):
         (BUYING_TYPE_DELIVERY, 'Доставка')
     )
 
-    customer = models.ForeignKey(Customer, verbose_name='Покупатель', related_name='related_orders', on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, verbose_name='Покупатель', related_name='related_orders',
+                                 on_delete=models.CASCADE)
     first_name = models.CharField(max_length=255, verbose_name="Имя")
     last_name = models.CharField(max_length=255, verbose_name="Фамилия")
     phone = models.CharField(max_length=20, verbose_name="Телефон")
     cart = models.ForeignKey(Cart, verbose_name='Корзина', on_delete=models.CASCADE, null=True, blank=True)
     address = models.CharField(max_length=1024, verbose_name="Адрес", null=True, blank=True)
     status = models.CharField(max_length=100,
-                                verbose_name="Статус заказа",
-                                choices=STATUS_CHOISES,
-                                default=STATUS_NEW
-                            )
+                              verbose_name="Статус заказа",
+                              choices=STATUS_CHOISES,
+                              default=STATUS_NEW
+                              )
     buying_type = models.CharField(max_length=100,
-                                verbose_name="Способ получения",
-                                choices=BUYING_TYPE_CHOISES,
-                                default=BUYING_TYPE_SELF
-                            )
+                                   verbose_name="Способ получения",
+                                   choices=BUYING_TYPE_CHOISES,
+                                   default=BUYING_TYPE_SELF
+                                   )
     comment = models.TextField(verbose_name="Комментарий к заказу", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания заказа")
     order_date = models.DateField(verbose_name="Дата получения заказа", default=timezone.now)
 
     def __str__(self):
         return str(self.id)
-    
