@@ -42,12 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
 
     # 3rd Packages
+    'djcelery_email',
     'crispy_forms',
     'corsheaders',
     'django_celery_beat',
     'django_celery_results',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # 'rest_framework_simplejwt.token_blacklist',
 
     # Local
     'users',
@@ -138,6 +142,15 @@ SITE_ID = 1
 
 AUTH_USER_MODEL = 'users.UserAccount'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/build/static'),
@@ -153,9 +166,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
 }
 
 SIMPLE_JWT = {
@@ -165,6 +175,8 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -176,9 +188,4 @@ CELERY_TIMEZONE = "Europe/Moscow"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BEAT_SCHEDULE = {
-    'send-messages': {
-        'task': 'users.tasks.send_message',
-        'schedule': 60.0 * 2.0,
-    }
-}
+CELERY_BROKER_URL = 'redis://localhost:6379/0'

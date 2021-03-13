@@ -8,10 +8,12 @@ from .models import UserAccount
 
 @shared_task
 def send_message():
+    send_to = ['kotata706@gmail.com',]
     send_mail(
         'Subject here',
         'Here is the message.',
         None,
-        ['kotata706@gmail.com'],
+        send_to,
         fail_silently=False,
     )
+    return f'Mail sent to{send_to}'
